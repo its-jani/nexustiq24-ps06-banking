@@ -37,7 +37,7 @@ setup. Open `http://localhost:8000` → upload a customer transaction CSV → re
 ### API
 
 - `GET  /health`                     → `{"status": "ok"}`
-- `POST /investigate`                → multipart: `files=customer.csv`, form `customer_name`
+- `POST /investigate`                → multipart: `file=customer.csv` (field name `file`), form `customer_name`
 - `GET  /investigate/{case_id}`      → an audited investigation by id
 
 ### CLI (no server)
