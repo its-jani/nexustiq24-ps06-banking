@@ -1,4 +1,4 @@
-TRACK_ID=PS6
+TRACK_ID=PS06
 
 # PS06 — Banking Transaction Risk Investigation Assistant
 
