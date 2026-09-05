@@ -8,7 +8,7 @@ needs attention at all** — and says so plainly when the history is clean.
 
 ## Demo video
 
-[Watch the 5-minute demo](<PASTE_YOUR_DEMO_VIDEO_LINK_HERE>) — it walks through the
+[Watch the 5-minute demo]([<PASTE_YOUR_DEMO_VIDEO_LINK_HERE>](https://vimeo.com/1224273028?share=copy&fl=sv&fe=ci)) — it walks through the
 whole flow: starting the app, uploading a customer's transaction CSV, reading a
 suspicious report (`NEEDS REVIEW`) with row-cited findings, and a routine report
 (`CLEAN`) that correctly finds nothing.
