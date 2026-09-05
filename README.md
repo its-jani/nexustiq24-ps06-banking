@@ -14,6 +14,8 @@ bash run.sh          # installs deps (idempotent, virtualenv) → serves http://
 
 Open `http://localhost:8000` → upload a customer transaction CSV → read the report.
 
+![PS06 web UI](docs/screenshots/ui-main.png)
+
 ### Configuration (`.env`, all optional)
 
 - `GEMINI_API_KEY` — required only for the Gemini narrative + similar-history lookup.
@@ -73,9 +75,11 @@ the customer's own baseline.
 SPEC.md               → capability map + six-core-area spec
 tasks/plan.md         → technical plan, slices, commit plan, risks
 tasks/todo.md         → task list (acceptance criteria per task)
+SUBMISSION.md         → prompt strategy, embedding choice, eval results, limitations
 app/                  → ingest · baseline · rules · retriever · reportgen · service · api
 tests/                → pytest suite (one file per module)
 data/                 → sample routine & suspicious CSVs (runtime: audit.db)
+docs/screenshots/     → UI screenshots
 run.sh                → canonical run command
 ```
 

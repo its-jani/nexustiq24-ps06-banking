@@ -6,6 +6,6 @@ __pycache__/
 .DS_Store
 *.key
 /graphify-out
-AGENTS.md
+.pytest_cache/
 data/*.db
 tests/tmp_db/

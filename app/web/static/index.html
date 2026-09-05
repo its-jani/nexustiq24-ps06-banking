@@ -3,64 +3,205 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f172a">
 <title>PS06 — Transaction Risk Investigation Assistant</title>
+<link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M11 8h7l4 4v12H11z' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M18 8v4h4' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M15 18v-4M13 20l2 2 2-2' stroke='%2338bdf8' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-  :root { --bg:#0f172a; --panel:#1e293b; --line:#334155; --text:#e2e8f0; --muted:#94a3b8;
-          --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --accent:#38bdf8; }
+  :root {
+    --bg:#0f172a; --bg-2:#0b1220; --panel:#1e293b; --line:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --faint:#64748b;
+    --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --accent:#38bdf8; --accent-strong:#7dd3fc;
+    --ok-dim:#052e16; --warn-dim:#3a1d05; --danger-dim:#2a1215;
+    --ring:rgba(125,211,252,.5);
+    --sans: ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+    --radius: 12px;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.28);
+  }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif;
-         background:var(--bg); color:var(--text); }
-  header { padding:20px 28px; border-bottom:1px solid var(--line); background:#0b1220; }
-  header h1 { margin:0; font-size:20px; letter-spacing:.2px; }
-  header p { margin:4px 0 0; color:var(--muted); font-size:13px; }
-  main { max-width:960px; margin:0 auto; padding:24px 28px 60px; }
-  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:20px; }
-  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
-  input[type=text], textarea { width:100%; background:#0f172a; border:1px solid var(--line);
-         color:var(--text); border-radius:8px; padding:10px 12px; font:13px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+  html { color-scheme: dark; }
+  body { margin:0; font-family:var(--sans); background:var(--bg); color:var(--text);
+         -webkit-font-smoothing: antialiased; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+  ::selection { background:rgba(56,189,248,.28); color:#fff; }
+  :focus-visible { outline:2px solid var(--accent-strong); outline-offset:2px; border-radius:4px; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:var(--line); border-radius:6px; border:2px solid transparent; background-clip:padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--faint); background-clip:padding-box; border:2px solid transparent; }
+
+  header { display:flex; align-items:center; gap:16px; padding:18px 28px;
+           border-bottom:1px solid var(--line); background:var(--bg-2);
+           position:sticky; top:0; z-index:10; }
+  .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+  .brand-mark { width:34px; height:34px; flex:0 0 auto; color:var(--accent);
+                background:linear-gradient(180deg, rgba(56,189,248,.14), rgba(56,189,248,.04));
+                border:1px solid rgba(56,189,248,.25); border-radius:9px;
+                display:grid; place-items:center; }
+  .brand-text { min-width:0; }
+  header h1 { margin:0; font-size:19px; line-height:1.25; letter-spacing:.1px; white-space:nowrap;
+              overflow:hidden; text-overflow:ellipsis; }
+  header p { margin:3px 0 0; color:var(--muted); font-size:12px; line-height:1.45;
+             overflow:hidden; text-overflow:ellipsis; }
+  .status { margin-left:auto; flex:0 0 auto; display:inline-flex; align-items:center; gap:7px;
+            font-size:12px; color:var(--muted); padding:6px 12px; border:1px solid var(--line);
+            border-radius:999px; background:var(--panel); white-space:nowrap; }
+  .status .dot { width:8px; height:8px; border-radius:50%; background:var(--faint); flex:0 0 auto; }
+  .status.on .dot { background:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.18); }
+  .status.off .dot { background:var(--danger); box-shadow:0 0 0 3px rgba(239,68,68,.15); }
+
+  main { max-width:960px; margin:0 auto; padding:26px 28px 72px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+          padding:22px 24px; margin-bottom:22px; box-shadow:var(--shadow-card); }
+  label { display:block; font-size:12px; font-weight:600; color:var(--text); letter-spacing:.2px; margin-bottom:6px; }
+  input[type=text], textarea { width:100%; background:var(--bg); border:1px solid var(--line);
+         color:var(--text); caret-color:var(--accent); border-radius:9px; padding:10px 12px;
+         font:13px/1.55 var(--mono); transition:border-color .15s ease, box-shadow .15s ease; }
+  input[type=text]:hover, textarea:hover { border-color:var(--faint); }
+  input[type=text]:focus, textarea:focus { outline:none; border-color:var(--accent);
+         box-shadow:0 0 0 3px var(--ring); }
+  ::placeholder { color:var(--muted); opacity:1; }
   textarea { min-height:180px; resize:vertical; }
-  button { background:var(--accent); color:#062033; border:none; border-radius:8px; padding:10px 22px;
-           font-weight:600; font-size:14px; cursor:pointer; margin-top:12px; }
-  button:disabled { opacity:.55; cursor:progress; }
-  .hint { color:var(--muted); font-size:12px; margin-top:6px; }
-  .badge { display:inline-block; padding:4px 12px; border-radius:999px; font-weight:700; font-size:13px; }
-  .badge.ok { background:#052e16; color:var(--ok); border:1px solid var(--ok); }
-  .badge.review { background:#3a1d05; color:var(--warn); border:1px solid var(--warn); }
-  .finding { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:10px 0; }
-  .finding.high { border-color:#7f1d1d; background:#201114; }
-  .finding.medium { border-color:#78350f; background:#22170a; }
-  .sev { font-size:11px; text-transform:uppercase; letter-spacing:.5px; margin-right:8px; }
-  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
-  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
-  th { color:var(--muted); font-weight:600; font-size:12px; }
-  pre { background:#0f172a; border:1px solid var(--line); border-radius:8px; padding:14px;
-        white-space:pre-wrap; font:13px/1.6 ui-monospace, Menlo, Consolas, monospace; }
-  .muted { color:var(--muted); }
-  .placeholder { color:var(--muted); border:1px dashed var(--line); border-radius:8px; padding:40px;
-                 text-align:center; font-size:13px; }
+  .hint { color:var(--muted); font-size:12px; margin-top:8px; line-height:1.5; }
+  .hint b { color:var(--text); font-weight:600; }
+
+  .actions { margin-top:16px; display:flex; align-items:center; gap:12px; }
+  button { appearance:none; border:none; background:var(--accent); color:#05263a;
+           border-radius:9px; padding:12px 24px; font-weight:700; font-size:14px; letter-spacing:.2px;
+           cursor:pointer; min-height:44px; display:inline-flex; align-items:center; gap:9px;
+           transition:background .15s ease, transform .1s ease, box-shadow .15s ease; }
+  button:hover { background:#7dd3fc; box-shadow:0 4px 14px rgba(0,0,0,.3); }
+  button:active { transform:translateY(1px); }
+  button:disabled { opacity:.6; cursor:progress; box-shadow:none; transform:none; }
+  button .spinner { width:15px; height:15px; flex:0 0 auto; animation:spin .7s linear infinite; }
+  button .spinner circle { fill:none; stroke:currentColor; stroke-width:2.5; stroke-dasharray:24; opacity:.7; }
+
+  .placeholder { color:var(--muted); border:1px dashed var(--line); border-radius:var(--radius);
+                 padding:46px 28px; text-align:center; font-size:13px; line-height:1.6;
+                 background:rgba(30,41,59,.35); }
+  .placeholder svg { color:var(--faint); margin:0 auto 10px; display:block; }
+  .placeholder strong { color:var(--text); font-weight:600; }
+
+  .badge { display:inline-flex; align-items:center; gap:8px; padding:5px 13px; border-radius:999px;
+           font-weight:800; font-size:12px; letter-spacing:.4px; text-transform:uppercase; }
+  .badge .glyph { width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .badge.ok { background:var(--ok-dim); color:var(--ok); border:1px solid rgba(34,197,94,.4); }
+  .badge.review { background:var(--warn-dim); color:var(--warn); border:1px solid rgba(245,158,11,.45); }
+  .verdict-line { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .verdict-summary { font-size:14px; font-weight:600; line-height:1.5; min-width:0; flex:1 1 320px; }
+  .meta { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:14px; padding-top:14px;
+          border-top:1px solid var(--line); font-size:12px; color:var(--muted); }
+  .meta code { font-family:var(--mono); color:var(--text); font-size:12px; }
+
+  h2.section-title { font-size:14px; font-weight:700; letter-spacing:.3px; margin:2px 0 2px;
+                     display:flex; align-items:center; gap:10px; }
+  h2.section-title .count { font-size:11px; font-weight:700; color:var(--accent-strong);
+                            background:rgba(56,189,248,.12); border-radius:999px; padding:2px 9px; }
+  .card > p.none { color:var(--muted); font-size:13px; margin:10px 0 0; }
+
+  .findings { list-style:none; margin:14px 0 0; padding:0; }
+  .finding { display:flex; gap:12px; padding:13px 4px; }
+  .finding + .finding { border-top:1px solid var(--line); }
+  .finding .dot { width:9px; height:9px; border-radius:50%; flex:0 0 auto; margin-top:5px; }
+  .finding.sev-high .dot { background:var(--danger); box-shadow:0 0 0 3px rgba(239,68,68,.16); }
+  .finding.sev-medium .dot { background:var(--warn); box-shadow:0 0 0 3px rgba(245,158,11,.15); }
+  .finding.sev-low .dot { background:var(--faint); box-shadow:0 0 0 3px rgba(100,116,139,.16); }
+  .finding-body { flex:1 1 auto; min-width:0; }
+  .finding-head { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+  .finding-head strong { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); }
+  .sev { font-size:11px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; padding:2px 8px;
+         border-radius:999px; }
+  .sev-high { color:#fca5a5; background:rgba(239,68,68,.13); }
+  .sev-medium { color:#fcd34d; background:rgba(245,158,11,.14); }
+  .sev-low { color:#cbd5e1; background:rgba(148,163,184,.14); }
+  .rows-chip { font-family:var(--mono); font-size:11px; color:var(--accent-strong); background:rgba(56,189,248,.1);
+               border-radius:6px; padding:2px 7px; }
+  .finding-msg { font-size:13px; line-height:1.55; margin-top:4px; color:var(--text); }
+  .finding-evidence { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:5px;
+                      line-height:1.5; overflow-wrap:anywhere; }
+
+  .table-scroll { overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:9px;
+                  -webkit-overflow-scrolling:touch; }
+  table { width:100%; border-collapse:collapse; font-size:13px; min-width:560px; }
+  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  tr:last-child td { border-bottom:none; }
+  th { color:var(--muted); font-weight:600; font-size:11px; letter-spacing:.4px; text-transform:uppercase;
+       background:rgba(15,23,42,.4); }
+  tr:hover td { background:rgba(56,189,248,.05); }
+  td.num { font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right;
+           font-size:12px; }
+  td.num.out { color:#fca5a5; }
+  td.row-no { font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--muted); }
+
+  .report { font-family:var(--sans); font-size:15px; line-height:1.7; color:var(--text);
+            margin:12px 0 0; white-space:pre-wrap; max-width:68ch; overflow-wrap:anywhere; }
+
+  @keyframes card-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #result .card { animation:card-in .32s cubic-bezier(.22,.9,.35,1) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation:none !important; transition:none !important; }
+  }
+
+  @media (max-width:640px) {
+    header { padding:14px 18px; }
+    header h1 { font-size:17px; }
+    header p { display:none; }
+    main { padding:18px 14px 56px; }
+    .card { padding:18px 16px; margin-bottom:16px; }
+    .actions button { width:100%; justify-content:center; }
+    .actions { display:block; }
+    .verdict-line { align-items:flex-start; }
+    .verdict-summary { font-size:14px; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>Transaction Risk Investigation Assistant</h1>
-  <p>Upload one customer's transaction history. The first finding is always:
-     does anything need your attention at all?</p>
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 2v6h6"/>
+        <path d="M8 12h8M8 16h5"/>
+      </svg>
+    </span>
+    <div class="brand-text">
+      <h1>Transaction Risk Investigation Assistant</h1>
+      <p>Upload one customer's transaction history. The first finding is always:
+         does anything need your attention at all?</p>
+    </div>
+  </div>
+  <span class="status" id="status" title="Re-checks when the page loads">
+    <span class="dot" aria-hidden="true"></span><span id="status-text">checking…</span>
+  </span>
 </header>
 <main>
   <div class="card">
-    <label for="customer">Customer name (optional)</label>
-    <input type="text" id="customer" placeholder="e.g. Jane Doe">
+    <label for="customer">Customer name <span style="color:var(--muted)">(optional)</span></label>
+    <input type="text" id="customer" placeholder="e.g. Jane Doe" autocomplete="off">
 
-    <label for="csv" style="margin-top:14px">Transaction CSV</label>
-    <textarea id="csv" placeholder="date,description,payee,amount,channel&#10;2024-01-05,Grocery,Store,-45.00,card&#10;..."></textarea>
-    <div class="hint">Required columns: <b>date, description, payee, amount, channel</b>.
+    <label for="csv" style="margin-top:16px">Transaction CSV</label>
+    <textarea id="csv" placeholder="date,description,payee,amount,channel&#10;2024-01-05,Grocery,Store,-45.00,card&#10;..." spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="csv-hint"></textarea>
+    <div class="hint" id="csv-hint">Required columns: <b>date, description, payee, amount, channel</b>.
     Amount negative = money out. Row numbers in the report refer to the exact CSV lines.</div>
 
-    <button id="run" onclick="runInvestigation()">Investigate</button>
+    <div class="actions">
+      <button type="button" id="run" onclick="runInvestigation()">Investigate</button>
+    </div>
   </div>
 
-  <div id="result">
-    <div class="placeholder">Report will appear here.</div>
+  <div id="result" tabindex="-1" role="status" aria-live="polite">
+    <div class="placeholder">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 21l-4.35-4.35"/>
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M8 11h6M11 8v6"/>
+      </svg>
+      <strong>No investigation yet</strong><br>
+      Paste a transaction CSV above and press <b>Investigate</b>.<br>
+      The report's first line is always the verdict: does anything need attention at all?
+    </div>
   </div>
 </main>
 
@@ -69,8 +210,9 @@ async function runInvestigation() {
   const csv = document.getElementById('csv').value;
   const name = document.getElementById('customer').value;
   const btn = document.getElementById('run');
-  if (!csv.trim()) { alert('Paste or upload a transaction CSV first.'); return; }
-  btn.disabled = true; btn.textContent = 'Investigating…';
+  if (!csv.trim()) { renderError('Paste or upload a transaction CSV first.'); return; }
+  btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+  btn.innerHTML = '<svg class="spinner" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/></svg>Investigating…';
 
   const fd = new FormData();
   fd.append('customer_name', name);
@@ -84,49 +226,98 @@ async function runInvestigation() {
   } catch (e) {
     renderError(String(e));
   } finally {
-    btn.disabled = false; btn.textContent = 'Investigate';
+    btn.disabled = false; btn.removeAttribute('aria-busy');
+    btn.textContent = 'Investigate';
   }
 }
 
 function esc(s) { return String(s).replace(/[&<>"']/g, c =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+const SEV = {
+  high:   { cls: 'sev-high',   label: 'High' },
+  medium: { cls: 'sev-medium', label: 'Medium' },
+  low:    { cls: 'sev-low',    label: 'Low' }
+};
+
+function sev(v) { return SEV[String(v).toLowerCase()] || SEV.low; }
+
 function renderError(msg) {
-  document.getElementById('result').innerHTML =
+  const el = document.getElementById('result');
+  el.innerHTML =
     `<div class="card"><strong style="color:#ef4444">Error:</strong> ${esc(msg)}</div>`;
+  el.focus();
 }
 
 function renderReport(r) {
   const ok = r.verdict === 'CLEAN';
-  const badge = `<span class="badge ${ok ? 'ok' : 'review'}">${esc(r.verdict)}</span>`;
-  const findings = (r.findings || []).map(f => `
-    <div class="finding ${esc(f.severity)}">
-      <span class="sev ${esc(f.severity)}">${esc(f.severity)}</span>
-      <strong>${esc(f.rule_id)}</strong>
-      <span class="muted"> — rows ${(f.rows||[]).join(', ')}</span>
-      <div>${esc(f.message)}</div>
-      <div class="muted" style="font-size:12px; margin-top:4px">${esc(f.evidence)}</div>
-    </div>`).join('') || '<p class="muted">No flags.</p>';
+  const badge = `<span class="badge ${ok ? 'ok' : 'review'}"><span class="glyph" aria-hidden="true"></span>${esc(r.verdict)}</span>`;
+
+  const findings = (r.findings || []).map(f => {
+    const s = sev(f.severity);
+    const rows = (f.rows || []).join(', ');
+    return `
+    <li class="finding ${s.cls}">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="finding-body">
+        <div class="finding-head"><strong>${esc(f.rule_id)}</strong><span class="sev ${s.cls}">${s.label}</span><span class="rows-chip">row${(f.rows||[]).length > 1 ? 's' : ''} ${esc(rows)}</span></div>
+        <div class="finding-msg">${esc(f.message)}</div>
+        <div class="finding-evidence">${esc(f.evidence)}</div>
+      </div>
+    </li>`;
+  }).join('');
+
+  const findingsBlock = (r.findings || []).length
+    ? `<div class="card"><h2 class="section-title">Findings<span class="count">${(r.findings||[]).length}</span></h2><ul class="findings">${findings}</ul></div>`
+    : `<div class="card"><h2 class="section-title">Findings</h2><p class="none">No flags — this history is consistent with the customer's own baseline.</p></div>`;
 
   const txs = (r.cited_transactions || []).map(t => `
-    <tr><td>${t.row}</td><td>${esc(t.date)}</td><td>${esc(t.payee)}</td>
-        <td style="text-align:right">${(+t.amount).toLocaleString()}</td>
+    <tr><td class="row-no">${esc(t.row)}</td><td>${esc(t.date)}</td><td>${esc(t.payee)}</td>
+        <td class="num ${t.amount < 0 ? 'out' : ''}">${esc((+t.amount).toLocaleString())}</td>
         <td>${esc(t.channel)}</td><td>${esc(t.description)}</td></tr>`).join('');
 
-  document.getElementById('result').innerHTML = `
+  const txBlock = (r.cited_transactions || []).length
+    ? `<div class="card"><h2 class="section-title">Cited transactions <span class="muted" style="font-weight:400">(input rows)</span></h2>
+       <div class="table-scroll"><table><tr><th>Row</th><th>Date</th><th>Payee</th><th>Amount</th><th>Channel</th><th>Description</th></tr>${txs}</table></div></div>`
+    : '';
+
+  const meta = [
+    r.customer_name ? `<span>Customer: <strong style="font-weight:600">${esc(r.customer_name)}</strong></span>` : '',
+    r.case_id ? `<span>Audit case: <code>${esc(r.case_id)}</code></span>` : ''
+  ].join('');
+
+  const el = document.getElementById('result');
+  el.innerHTML = `
     <div class="card">
-      <h2 style="margin:0 0 12px; font-size:16px">${badge}
-        <span style="font-weight:600; margin-left:8px">${esc(r.summary)}</span></h2>
-      ${r.case_id ? '<div class="hint">Audit case id: <b>' + esc(r.case_id) + '</b> — GET /investigate/' + esc(r.case_id) + '</div>' : ''}
+      <div class="verdict-line">
+        ${badge}
+        <span class="verdict-summary">${esc(r.summary)}</span>
+      </div>
+      ${meta ? `<div class="meta">${meta}</div>` : ''}
     </div>
-    <div class="card"><h2 style="font-size:15px; margin-top:0">Findings</h2>${findings}</div>
-    <div class="card"><h2 style="font-size:15px; margin-top:0">Cited transactions (input rows)</h2>
-      ${txs ? `<table><tr><th>Row</th><th>Date</th><th>Payee</th><th>Amount</th><th>Channel</th><th>Description</th></tr>${txs}</table>`
-             : '<p class="muted">None — nothing in this history needs attention.</p>'}
-    </div>
-    <div class="card"><h2 style="font-size:15px; margin-top:0">Investigation report</h2>
-      <pre>${esc(r.narrative)}</pre></div>`;
+    ${findingsBlock}
+    ${txBlock}
+    <div class="card"><h2 class="section-title">Investigation report</h2>
+      <pre class="report">${esc(r.narrative)}</pre></div>`;
+  el.focus();
 }
+
+const statusEl = document.getElementById('status');
+const statusText = document.getElementById('status-text');
+fetch('/health', { method:'GET' })
+  .then(r => {
+    if (r.ok) {
+      statusEl.classList.add('on');
+      statusText.textContent = 'service online';
+    } else {
+      statusEl.classList.add('off');
+      statusText.textContent = 'service offline';
+    }
+  })
+  .catch(() => {
+    statusEl.classList.add('off');
+    statusText.textContent = 'service offline';
+  });
 </script>
 </body>
 </html>
