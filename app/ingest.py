@@ -8,8 +8,10 @@ REQUIRED_COLUMNS = ["date", "description", "payee", "amount", "channel"]
 
 _DATE_FORMATS = (
     "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%d %H:%M",
     "%Y-%m-%d",
     "%m/%d/%Y %H:%M:%S",
+    "%m/%d/%Y %H:%M",
     "%m/%d/%Y",
 )
 

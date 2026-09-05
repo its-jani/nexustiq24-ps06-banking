@@ -37,7 +37,11 @@ def _flat_outlier(txs: list[Transaction], baseline: Baseline) -> list[RiskFindin
         thr = _robust_threshold(vals)
         median_dir = median(vals)
         for t in txs:
-            if (t.amount > 0) == positive and abs(t.amount) > thr and abs(t.amount) >= 3 * abs(median_dir):
+            # Require BOTH a robust-statistical break AND a strong relative jump
+            # (>=5x this customer's typical same-direction amount). A history with
+            # legitimate broad categories (rent + groceries) must not self-flag.
+            if (t.amount > 0) == positive and abs(t.amount) > thr \
+                    and abs(t.amount) >= 5 * abs(median_dir):
                 findings.append(RiskFinding(
                     rule_id="flat_outlier",
                     severity="high",
