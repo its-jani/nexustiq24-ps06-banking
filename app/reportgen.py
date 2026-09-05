@@ -21,6 +21,7 @@ def build_prompt(
     findings: list[RiskFinding],
     customer_name: str = "",
     model: str = "gemini-2.5-flash",
+    similar_notes: str = "",
 ) -> str:
     """Assemble the grounded evidence package for the model. Findings are fact."""
     baseline_txt = (
@@ -32,6 +33,7 @@ def build_prompt(
         f"- [{f.severity}] rule {f.rule_id} rows={f.rows} :: {f.evidence} :: {f.message}"
         for f in findings
     ) or "(none — history is routine)"
+    similar_txt = similar_notes or "(embedding-based similar-history lookup unavailable)"
     return "\n".join([
         _SAFE_GUARD,
         f"Verifier's verdict (deterministic, do not contradict): {verdict}",
@@ -39,6 +41,8 @@ def build_prompt(
         baseline_txt,
         "Machine findings:",
         evidence_txt,
+        "Similar historical activity for the flagged rows:",
+        similar_txt,
         "",
         "Write the investigation report now.",
     ])
@@ -85,11 +89,11 @@ def generate_report(
     llm_fn: Callable[[str], str] | None = None,
     api_key: str | None = None,
     model: str = "gemini-2.5-flash",
-    similar: dict[int, list[tuple]] | None = None,
+    similar_notes: str = "",
 ) -> str:
     """Produce the narrative. Uses the injected fn (test seam), then the Gemini API,
     then the deterministic fallback. The verdict/findings are always authoritative."""
-    prompt = build_prompt(verdict, baseline, findings, customer_name, model)
+    prompt = build_prompt(verdict, baseline, findings, customer_name, model, similar_notes)
     if llm_fn is not None:
         try:
             return str(llm_fn(prompt))
@@ -105,4 +109,4 @@ def generate_report(
                 return resp.text
         except Exception:
             pass  # network/key errors degrade, never abort the report
-    return _fallback_narrative(verdict, baseline, findings, similar, customer_name)
+    return _fallback_narrative(verdict, baseline, findings, None, customer_name)
