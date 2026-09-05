@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PS06 — Transaction Risk Investigation Assistant</title>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --line:#334155; --text:#e2e8f0; --muted:#94a3b8;
+          --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --accent:#38bdf8; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif;
+         background:var(--bg); color:var(--text); }
+  header { padding:20px 28px; border-bottom:1px solid var(--line); background:#0b1220; }
+  header h1 { margin:0; font-size:20px; letter-spacing:.2px; }
+  header p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+  main { max-width:960px; margin:0 auto; padding:24px 28px 60px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:20px; }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  input[type=text], textarea { width:100%; background:#0f172a; border:1px solid var(--line);
+         color:var(--text); border-radius:8px; padding:10px 12px; font:13px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+  textarea { min-height:180px; resize:vertical; }
+  button { background:var(--accent); color:#062033; border:none; border-radius:8px; padding:10px 22px;
+           font-weight:600; font-size:14px; cursor:pointer; margin-top:12px; }
+  button:disabled { opacity:.55; cursor:progress; }
+  .hint { color:var(--muted); font-size:12px; margin-top:6px; }
+  .badge { display:inline-block; padding:4px 12px; border-radius:999px; font-weight:700; font-size:13px; }
+  .badge.ok { background:#052e16; color:var(--ok); border:1px solid var(--ok); }
+  .badge.review { background:#3a1d05; color:var(--warn); border:1px solid var(--warn); }
+  .finding { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:10px 0; }
+  .finding.high { border-color:#7f1d1d; background:#201114; }
+  .finding.medium { border-color:#78350f; background:#22170a; }
+  .sev { font-size:11px; text-transform:uppercase; letter-spacing:.5px; margin-right:8px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; font-size:12px; }
+  pre { background:#0f172a; border:1px solid var(--line); border-radius:8px; padding:14px;
+        white-space:pre-wrap; font:13px/1.6 ui-monospace, Menlo, Consolas, monospace; }
+  .muted { color:var(--muted); }
+  .placeholder { color:var(--muted); border:1px dashed var(--line); border-radius:8px; padding:40px;
+                 text-align:center; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Transaction Risk Investigation Assistant</h1>
+  <p>Upload one customer's transaction history. The first finding is always:
+     does anything need your attention at all?</p>
+</header>
+<main>
+  <div class="card">
+    <label for="customer">Customer name (optional)</label>
+    <input type="text" id="customer" placeholder="e.g. Jane Doe">
+
+    <label for="csv" style="margin-top:14px">Transaction CSV</label>
+    <textarea id="csv" placeholder="date,description,payee,amount,channel&#10;2024-01-05,Grocery,Store,-45.00,card&#10;..."></textarea>
+    <div class="hint">Required columns: <b>date, description, payee, amount, channel</b>.
+    Amount negative = money out. Row numbers in the report refer to the exact CSV lines.</div>
+
+    <button id="run" onclick="runInvestigation()">Investigate</button>
+  </div>
+
+  <div id="result">
+    <div class="placeholder">Report will appear here.</div>
+  </div>
+</main>
+
+<script>
+async function runInvestigation() {
+  const csv = document.getElementById('csv').value;
+  const name = document.getElementById('customer').value;
+  const btn = document.getElementById('run');
+  if (!csv.trim()) { alert('Paste or upload a transaction CSV first.'); return; }
+  btn.disabled = true; btn.textContent = 'Investigating…';
+
+  const fd = new FormData();
+  fd.append('customer_name', name);
+  fd.append('file', new Blob([csv], {type:'text/csv'}), 'customer.csv');
+
+  try {
+    const resp = await fetch('/investigate', { method:'POST', body: fd });
+    const data = await resp.json();
+    if (!resp.ok) { renderError(data.detail || 'Investigation failed.'); return; }
+    renderReport(data);
+  } catch (e) {
+    renderError(String(e));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Investigate';
+  }
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderError(msg) {
+  document.getElementById('result').innerHTML =
+    `<div class="card"><strong style="color:#ef4444">Error:</strong> ${esc(msg)}</div>`;
+}
+
+function renderReport(r) {
+  const ok = r.verdict === 'CLEAN';
+  const badge = `<span class="badge ${ok ? 'ok' : 'review'}">${esc(r.verdict)}</span>`;
+  const findings = (r.findings || []).map(f => `
+    <div class="finding ${esc(f.severity)}">
+      <span class="sev ${esc(f.severity)}">${esc(f.severity)}</span>
+      <strong>${esc(f.rule_id)}</strong>
+      <span class="muted"> — rows ${(f.rows||[]).join(', ')}</span>
+      <div>${esc(f.message)}</div>
+      <div class="muted" style="font-size:12px; margin-top:4px">${esc(f.evidence)}</div>
+    </div>`).join('') || '<p class="muted">No flags.</p>';
+
+  const txs = (r.cited_transactions || []).map(t => `
+    <tr><td>${t.row}</td><td>${esc(t.date)}</td><td>${esc(t.payee)}</td>
+        <td style="text-align:right">${(+t.amount).toLocaleString()}</td>
+        <td>${esc(t.channel)}</td><td>${esc(t.description)}</td></tr>`).join('');
+
+  document.getElementById('result').innerHTML = `
+    <div class="card">
+      <h2 style="margin:0 0 12px; font-size:16px">${badge}
+        <span style="font-weight:600; margin-left:8px">${esc(r.summary)}</span></h2>
+      ${r.case_id ? '<div class="hint">Audit case id: <b>' + esc(r.case_id) + '</b> — GET /investigate/' + esc(r.case_id) + '</div>' : ''}
+    </div>
+    <div class="card"><h2 style="font-size:15px; margin-top:0">Findings</h2>${findings}</div>
+    <div class="card"><h2 style="font-size:15px; margin-top:0">Cited transactions (input rows)</h2>
+      ${txs ? `<table><tr><th>Row</th><th>Date</th><th>Payee</th><th>Amount</th><th>Channel</th><th>Description</th></tr>${txs}</table>`
+             : '<p class="muted">None — nothing in this history needs attention.</p>'}
+    </div>
+    <div class="card"><h2 style="font-size:15px; margin-top:0">Investigation report</h2>
+      <pre>${esc(r.narrative)}</pre></div>`;
+}
+</script>
+</body>
+</html>
