@@ -20,7 +20,7 @@ def build_prompt(
     baseline: Baseline,
     findings: list[RiskFinding],
     customer_name: str = "",
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.6-flash",
     similar_notes: str = "",
 ) -> str:
     """Assemble the grounded evidence package for the model. Findings are fact."""
@@ -88,7 +88,7 @@ def generate_report(
     customer_name: str = "",
     llm_fn: Callable[[str], str] | None = None,
     api_key: str | None = None,
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.6-flash",
     similar_notes: str = "",
 ) -> str:
     """Produce the narrative. Uses the injected fn (test seam), then the Gemini API,
@@ -104,7 +104,7 @@ def generate_report(
             from google import genai
 
             client = genai.Client(api_key=api_key)
-            resp = client.models.generate_content(model=model, contents=prompt)
+            resp = client.chats.create(model=model).send_message(prompt)
             if resp.text:
                 return resp.text
         except Exception:

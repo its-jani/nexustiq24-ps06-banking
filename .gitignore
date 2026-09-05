@@ -7,3 +7,5 @@ __pycache__/
 *.key
 /graphify-out
 AGENTS.md
+data/*.db
+tests/tmp_db/

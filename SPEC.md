@@ -153,7 +153,7 @@ helpers). Cover, at minimum:
 
 - Judge-provided CSV schema may add columns (e.g. `transaction_id`, `balance`). Design
   tolerates extra columns; required columns are `date, description, payee, amount, channel`.
-- Exact Gemini model name resolved at runtime from env `GEMINI_MODEL` (default `gemini-2.5-flash`);
+- Exact Gemini model name resolved at runtime from env `GEMINI_MODEL` (default `gemini-3.6-flash`);
   the SDK + test stubs make the model a knob, not a code fork.
 
 ## Assumptions

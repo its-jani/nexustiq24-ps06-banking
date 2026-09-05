@@ -2,6 +2,7 @@ import csv
 import io
 from datetime import datetime
 
+from app.config import MAX_TRANSACTIONS
 from app.models import Transaction
 
 REQUIRED_COLUMNS = ["date", "description", "payee", "amount", "channel"]
@@ -64,6 +65,9 @@ def parse_csv(source: io.IOBase | str) -> list[Transaction]:
         if when is None or amount is None:
             continue
 
+        if len(txs) >= MAX_TRANSACTIONS:
+            errors.append(f"row {row_num}: exceeds transaction limit of {MAX_TRANSACTIONS}")
+            break
         txs.append(Transaction(
             row=row_num,
             date=when,

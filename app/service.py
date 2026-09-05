@@ -36,7 +36,7 @@ def investigate(
     txs: list[Transaction],
     customer_name: str = "",
     api_key: str | None = None,
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.6-flash",
     embed_fn=None,
     llm_fn=None,
 ) -> InvestigationReport:
@@ -82,7 +82,7 @@ def investigate_csv(
     source: io.IOBase | str,
     customer_name: str = "",
     api_key: str | None = None,
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.6-flash",
     embed_fn=None,
     llm_fn=None,
 ) -> InvestigationReport:

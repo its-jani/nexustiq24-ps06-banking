@@ -14,6 +14,14 @@ bash run.sh          # installs deps (idempotent, virtualenv) → serves http://
 
 Open `http://localhost:8000` → upload a customer transaction CSV → read the report.
 
+### Configuration (`.env`, all optional)
+
+- `GEMINI_API_KEY` — required only for the Gemini narrative + similar-history lookup.
+  Missing/expired key degrades gracefully to a deterministic narrative.
+- `GEMINI_MODEL` — default `gemini-3.6-flash` (any flash/flash-lite class model).
+- `MAX_TRANSACTIONS` — input row cap, default 10000.
+- `MAX_UPLOAD_BYTES` — API upload cap, default 20 MB.
+
 ### API
 
 - `GET  /health`                     → `{"status": "ok"}`
@@ -51,6 +59,9 @@ Common date formats: `YYYY-MM-DD[ HH:MM:SS]`, `MM/DD/YYYY[ HH:MM:SS]`.
 5. **reportgen** — Gemini (flash/flash-lite) writes the human narrative, strictly
    as a summary of the machine evidence. No key → deterministic verdict + findings
    still returned (graceful degradation).
+
+Every investigation is recorded in `data/audit.db` (case id, input fingerprint,
+verdict, findings, narrative); the report is retrievable by case id via the API.
 
 The system **flags and explains; it never asserts fraud** — judgment stays with
 the investigator. Clean histories stay clean: every rule is thresholded against

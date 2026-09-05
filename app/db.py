@@ -79,8 +79,15 @@ def get_case(case_id: str, db_path: Path | None = None) -> dict | None:
         row = cur.fetchone()
         if row is None:
             return None
-        keys = ("case_id", "customer_name", "input_fingerprint", "verdict", "summary",
-                "narrative", "findings", "created_at")
-        return dict(zip(keys, row)) | {"findings": json.loads(row[6] or "[]")}
+        return {
+            "case_id": row[0],
+            "customer_name": row[1],
+            "input_fingerprint": row[2],
+            "verdict": row[3],
+            "summary": row[4],
+            "narrative": row[5],
+            "findings": json.loads(row[6] or "[]"),
+            "created_at": row[7],
+        }
     finally:
         conn.close()

@@ -13,6 +13,14 @@ app = FastAPI(title="PS06 Banking Transaction Risk Investigation Assistant")
 WEB_DIR = Path(__file__).parent / "web" / "static"
 
 
+@app.middleware("http")
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
+
+
 def report_to_dict(report: InvestigationReport) -> dict:
     return {
         "verdict": report.verdict,

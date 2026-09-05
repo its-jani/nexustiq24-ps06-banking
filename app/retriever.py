@@ -64,8 +64,8 @@ def build_retriever(
         client = genai.Client(api_key=api_key)
 
         def embed_fn(texts):
-            resp = client.models.embed_content(model=model, contents=list(texts))
-            return [list(e.values) for e in resp.embeddings]
+            # batch to bound per-request size for large histories
+            return _batch_embed(client, model, texts)
 
     texts = [text_for(t) for t in txs]
     vectors = np.asarray(list(embed_fn(texts)), dtype="float32")
@@ -81,3 +81,11 @@ def build_retriever(
 
     r = Retriever(index, txs, vectors_norm, model)
     return r
+
+
+def _batch_embed(client, model: str, texts: list[str], batch_size: int = 100) -> list[list[float]]:
+    vectors: list[list[float]] = []
+    for start in range(0, len(texts), batch_size):
+        resp = client.models.embed_content(model=model, contents=list(texts[start:start + batch_size]))
+        vectors.extend(list(e.values) for e in resp.embeddings)
+    return vectors

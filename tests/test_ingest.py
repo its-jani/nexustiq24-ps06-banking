@@ -3,6 +3,7 @@ from datetime import date, datetime
 
 import pytest
 
+import app.ingest
 from app.ingest import IngestionError, parse_csv, REQUIRED_COLUMNS
 
 HEADER = "date,description,payee,amount,channel"
@@ -10,6 +11,14 @@ HEADER = "date,description,payee,amount,channel"
 
 def _csv(rows):
     return io.StringIO("\n".join([HEADER] + rows))
+
+
+def test_transaction_cap_is_enforced(monkeypatch):
+    monkeypatch.setattr(app.ingest, "MAX_TRANSACTIONS", 3)
+    rows = [f"2024-01-{d:02d},Grocery,Store,-10.00,card" for d in range(1, 8)]
+    with pytest.raises(IngestionError) as exc:
+        parse_csv(_csv(rows))
+    assert "limit of 3" in str(exc.value)
 
 
 def test_parse_minimal_valid_csv():
