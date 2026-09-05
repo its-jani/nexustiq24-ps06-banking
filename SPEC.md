@@ -67,7 +67,7 @@ API:      http://localhost:8000/                 (UI)
           GET  /investigate/{case_id}            (audited report by id)
           GET  /health
 Test:     python -m pytest -q
-Data:     python -m core.tools.generate_data --out data/sample_suspicious.csv (and --routine)
+Data:     python -m core.tools.generate_data --out data/sample_suspicious.csv (uses --suspicious; default is routine)
 Direct:   python -m core.tools.cli data/sample_suspicious.csv
 ```
 
