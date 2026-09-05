@@ -1,11 +1,11 @@
-"""Run one CSV through the full investigation pipeline, end-to-end, without a server."""
+﻿"""Run one CSV through the full investigation pipeline, end-to-end, without a server."""
 import argparse
 import json
 import sys
 from pathlib import Path
 
-import app.config as config
-from app.service import investigate_csv
+import core.config as config
+from core.service import investigate_csv
 
 
 def main():

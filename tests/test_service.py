@@ -1,8 +1,8 @@
-import io
+﻿import io
 from datetime import datetime
 
-from app.models import RiskFinding
-from app.service import decide_verdict, investigate, investigate_csv
+from core.models import RiskFinding
+from core.service import decide_verdict, investigate, investigate_csv
 from tests.test_rules import _routine_history
 
 
@@ -82,7 +82,7 @@ def test_investigate_embeds_similar_context_into_prompt():
 
 
 def _make_tx(row, date, amount, payee, channel):
-    from app.models import Transaction
+    from core.models import Transaction
     return Transaction(row=row, date=date, description="", payee=payee, amount=amount, channel=channel)
 
 

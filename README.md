@@ -9,10 +9,19 @@ needs attention at all** — and says so plainly when the history is clean.
 On a clean machine with a `GEMINI_API_KEY` environment variable (or `.env`):
 
 ```bash
-bash run.sh          # installs deps (idempotent, virtualenv) → serves http://0.0.0.0:8000
+bash run.sh                       # installs deps → serves http://0.0.0.0:8000
 ```
 
-Open `http://localhost:8000` → upload a customer transaction CSV → read the report.
+Or, with deps already installed:
+
+```bash
+pip install -r requirements.txt   # one-time setup (~10 min)
+python app.py                     # one command → frontend + backend on :8000
+```
+
+`python app.py` and `bash run.sh` both start the backend and the web UI together
+from the single `app.py` entry point. No build steps, no extra terminal, no manual
+setup. Open `http://localhost:8000` → upload a customer transaction CSV → read the report.
 
 ![PS06 web UI](docs/screenshots/ui-main.png)
 
@@ -21,6 +30,7 @@ Open `http://localhost:8000` → upload a customer transaction CSV → read the 
 - `GEMINI_API_KEY` — required only for the Gemini narrative + similar-history lookup.
   Missing/expired key degrades gracefully to a deterministic narrative.
 - `GEMINI_MODEL` — default `gemini-3.6-flash` (any flash/flash-lite class model).
+- `REQUEST_TIMEOUT` — per-Gemini-call timeout seconds, default 50 (keeps every request under 60s).
 - `MAX_TRANSACTIONS` — input row cap, default 10000.
 - `MAX_UPLOAD_BYTES` — API upload cap, default 20 MB.
 
@@ -33,8 +43,8 @@ Open `http://localhost:8000` → upload a customer transaction CSV → read the 
 ### CLI (no server)
 
 ```bash
-python -m app.tools.cli data/sample_routine.csv
-python -m app.tools.cli data/sample_suspicious.csv
+python -m core.tools.cli data/sample_routine.csv
+python -m core.tools.cli data/sample_suspicious.csv
 ```
 
 ### Tests
@@ -76,11 +86,12 @@ SPEC.md               → capability map + six-core-area spec
 tasks/plan.md         → technical plan, slices, commit plan, risks
 tasks/todo.md         → task list (acceptance criteria per task)
 SUBMISSION.md         → prompt strategy, embedding choice, eval results, limitations
-app/                  → ingest · baseline · rules · retriever · reportgen · service · api
+app.py                → single entry point: starts backend + web UI together
+core/                 → ingest · baseline · rules · retriever · reportgen · service · api
 tests/                → pytest suite (one file per module)
 data/                 → sample routine & suspicious CSVs (runtime: audit.db)
 docs/screenshots/     → UI screenshots
-run.sh                → canonical run command
+run.sh                → canonical clean-machine run command
 ```
 
 Tracked commit history is the plan in motion: one commit per vertical slice.

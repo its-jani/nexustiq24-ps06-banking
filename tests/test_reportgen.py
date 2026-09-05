@@ -1,8 +1,8 @@
-from datetime import datetime
+﻿from datetime import datetime
 
-from app.baseline import compute_baseline
-from app.models import RiskFinding, Transaction
-from app.reportgen import build_prompt, generate_report, _fallback_narrative
+from core.baseline import compute_baseline
+from core.models import RiskFinding, Transaction
+from core.reportgen import build_prompt, generate_report, _fallback_narrative
 
 ROUTINE = [
     Transaction(row=3, date=datetime(2024, 1, 5, 9, 0), description="Grocery", payee="Store",

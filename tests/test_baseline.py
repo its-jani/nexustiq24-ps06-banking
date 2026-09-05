@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+﻿from datetime import datetime, timedelta
 from math import isclose
 
-from app.baseline import compute_baseline
-from app.models import Transaction
+from core.baseline import compute_baseline
+from core.models import Transaction
 
 
 def _tx(day, hour, amount, payee, channel):

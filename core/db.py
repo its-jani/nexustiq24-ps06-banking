@@ -1,11 +1,11 @@
-import hashlib
+﻿import hashlib
 import json
 import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app.config import DATA_DIR
+from core.config import DATA_DIR
 
 
 def _connect(db_path: Path | None = None) -> sqlite3.Connection:

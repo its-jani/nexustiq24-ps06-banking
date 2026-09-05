@@ -28,7 +28,7 @@ judgment to the investigator. Clean histories return clean.
 The system is **deterministic-first, LLM-last**. The Gemini narrative is a grounded
 summary of machine-generated evidence — it never decides, only narrates.
 
-A single prompt is assembled in `app/reportgen.py:build_prompt` from four parts:
+A single prompt is assembled in `core/reportgen.py:build_prompt` from four parts:
 
 1. **Hard constraints (the safety guard)** — the model is told:
    - NEVER state or imply fraud has occurred; flag and hand judgment to the investigator.
@@ -49,7 +49,7 @@ A single prompt is assembled in `app/reportgen.py:build_prompt` from four parts:
    history (via embeddings + FAISS) so the narrative can say *why* a row is unusual
    relative to genuinely similar prior activity.
 
-The LLM path is fully optional. `app/reportgen.py:generate_report` tries the injected
+The LLM path is fully optional. `core/reportgen.py:generate_report` tries the injected
 LLM (test seam), then the Gemini chat API, then a deterministic structured fallback
 narrative. A missing/expired key never aborts an investigation.
 
@@ -61,9 +61,9 @@ Model: `gemini-3.6-flash` (flash class, per constraints). Overridable via `GEMIN
 - **Store:** local **FAISS** index (`IndexFlatIP` with L2-normalized inner product), rebuilt
   per investigation from the customer's own history — no hosted vector DB.
 - **Purpose:** retrieve the `k` most textually similar *other* transactions for each flagged
-  row (`app/retriever.py:Retriever.similar`), excluding the query row itself. This gives the
+  row (`core/retriever.py:Retriever.similar`), excluding the query row itself. This gives the
   narrator concrete "normal lookalikes" to contrast flagged rows against.
-- Embedding calls are batched (batch size 100, `app/retriever.py:_batch_embed`) to bound
+- Embedding calls are batched (batch size 100, `core/retriever.py:_batch_embed`) to bound
   per-request size on large histories. If no key is present, the retriever is skipped and the
   narrative runs on rules alone (graceful degradation).
 

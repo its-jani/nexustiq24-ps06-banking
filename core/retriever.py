@@ -1,6 +1,7 @@
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
-from app.models import Transaction
+from core.config import REQUEST_TIMEOUT
+from core.models import Transaction
 
 
 class RetrieverError(RuntimeError):
@@ -60,8 +61,12 @@ def build_retriever(
         if not api_key:
             raise RetrieverError("retriever needs an embedding function or a GEMINI_API_KEY")
         from google import genai  # deferred: avoid heavy import until needed
+        from google.genai import types
 
-        client = genai.Client(api_key=api_key)
+        client = genai.Client(
+            api_key=api_key,
+            http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT),
+        )
 
         def embed_fn(texts):
             # batch to bound per-request size for large histories

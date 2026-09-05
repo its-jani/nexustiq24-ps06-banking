@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+﻿from datetime import datetime, timedelta
 
-from app.baseline import compute_baseline
-from app.models import Transaction
-from app.rules import RULES, run_rules
+from core.baseline import compute_baseline
+from core.models import Transaction
+from core.rules import RULES, run_rules
 
 DAY = timedelta(days=1)
 HOUR = timedelta(hours=1)

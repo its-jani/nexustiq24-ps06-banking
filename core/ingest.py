@@ -1,9 +1,9 @@
-import csv
+﻿import csv
 import io
 from datetime import datetime
 
-from app.config import MAX_TRANSACTIONS
-from app.models import Transaction
+from core.config import MAX_TRANSACTIONS
+from core.models import Transaction
 
 REQUIRED_COLUMNS = ["date", "description", "payee", "amount", "channel"]
 
@@ -26,7 +26,7 @@ def parse_csv(source: io.IOBase | str) -> list[Transaction]:
 
     Required columns: date, description, payee, amount, channel (case-insensitive,
     extra columns ignored). Blank lines are skipped. Any structurally invalid row
-    fails the whole ingestion with the offending row numbers listed — silently
+    fails the whole ingestion with the offending row numbers listed â€” silently
     dropping rows from a fraud investigation would be worse than failing loudly.
     """
     if isinstance(source, str):

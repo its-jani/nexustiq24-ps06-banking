@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # PS06 — canonical clean-machine run command. Idempotent; safe to re-run.
+# Installs deps, then starts frontend + backend together: python app.py
 
 # 1. Create a virtualenv (idempotent) and install requirements into it.
 #    Cross-platform: works on Linux/macOS (bin/) and Windows git-bash (Scripts/).
@@ -16,8 +17,8 @@ fi
 "$VENV_PY" -m pip install --quiet --upgrade pip
 "$VENV_PY" -m pip install --quiet -r requirements.txt
 
-# 2. GEMINI_API_KEY is loaded by app/config.py via python-dotenv from ./.env
+# 2. GEMINI_API_KEY is loaded by core/config.py via python-dotenv from ./.env
 #    (never committed). No shell sourcing needed — dotenv handles quoting.
 
-# 3. Start the FastAPI server on all interfaces, port 8000.
-exec "$VENV_PY" -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+# 3. Start everything with the single entry point: app.py (server + web UI).
+exec "$VENV_PY" app.py

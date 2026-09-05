@@ -1,8 +1,8 @@
-import io
+﻿import io
 
 from fastapi.testclient import TestClient
 
-from app.main import app
+from core.main import app
 
 client = TestClient(app)
 

@@ -59,21 +59,23 @@ API key is read ONLY from env var `GEMINI_API_KEY` (via `.env` / dotenv). Never 
 ## Commands
 
 ```
-Install:  python -m pip install -r requirements.txt
-Run:      bash run.sh                # installs deps (idempotent) + starts uvicorn on :8000
+Install:  python -m pip install -r requirements.txt   # one-time, ~10 min
+Run:      python app.py                # one command: starts frontend + backend on :8000
+          bash run.sh                  # installs deps (idempotent) then runs python app.py
 API:      http://localhost:8000/                 (UI)
           POST /investigate                      (multipart: files=customer.csv, form: customer_name=...)
           GET  /investigate/{case_id}            (audited report by id)
           GET  /health
 Test:     python -m pytest -q
-Data:     python -m app.tools.generate_data --out data/sample_suspicious.csv (and --routine)
-Direct:   python -m app.tools.cli data/sample_suspicious.csv
+Data:     python -m core.tools.generate_data --out data/sample_suspicious.csv (and --routine)
+Direct:   python -m core.tools.cli data/sample_suspicious.csv
 ```
 
 ## Project Structure
 
 ```
-app/            → Application source
+app.py          → Single entry point: starts backend (FastAPI) + web UI together
+core/           → Application source
   main.py         → FastAPI app, routes, web UI serving
   config.py       → Env config (GEMINI_API_KEY, GEMINI_MODEL, paths)
   models.py       → dataclasses: Transaction, RiskFinding, InvestigationReport

@@ -1,8 +1,8 @@
-import sys
+﻿import sys
 from pathlib import Path
 
-import app.config as config
-import app.db as db
+import core.config as config
+import core.db as db
 
 # Tests must never call live Gemini/embedding APIs: force the no-key path.
 config.API_KEY = None

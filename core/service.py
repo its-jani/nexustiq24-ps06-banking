@@ -1,11 +1,11 @@
-import io
+﻿import io
 
-from app.baseline import compute_baseline
-from app.ingest import parse_csv
-from app.models import InvestigationReport, RiskFinding, Transaction
-from app.reportgen import generate_report
-from app.retriever import build_retriever
-from app.rules import run_rules
+from core.baseline import compute_baseline
+from core.ingest import parse_csv
+from core.models import InvestigationReport, RiskFinding, Transaction
+from core.reportgen import generate_report
+from core.retriever import build_retriever
+from core.rules import run_rules
 
 _ORDER = {"high": 0, "medium": 1, "low": 2}
 

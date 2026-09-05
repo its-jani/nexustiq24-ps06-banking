@@ -1,13 +1,13 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
-import app.config as config
-import app.db as db
-from app.ingest import IngestionError
-from app.models import InvestigationReport
-from app.service import investigate_csv
+import core.config as config
+import core.db as db
+from core.ingest import IngestionError
+from core.models import InvestigationReport
+from core.service import investigate_csv
 
 app = FastAPI(title="PS06 Banking Transaction Risk Investigation Assistant")
 WEB_DIR = Path(__file__).parent / "web" / "static"

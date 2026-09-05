@@ -1,6 +1,7 @@
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
-from app.models import Baseline, RiskFinding
+from core.config import REQUEST_TIMEOUT
+from core.models import Baseline, RiskFinding
 
 _SAFE_GUARD = (
     "You are writing for a bank fraud investigator. Hard constraints:\n"
@@ -32,7 +33,7 @@ def build_prompt(
     evidence_txt = "\n".join(
         f"- [{f.severity}] rule {f.rule_id} rows={f.rows} :: {f.evidence} :: {f.message}"
         for f in findings
-    ) or "(none — history is routine)"
+    ) or "(none â€” history is routine)"
     similar_txt = similar_notes or "(embedding-based similar-history lookup unavailable)"
     return "\n".join([
         _SAFE_GUARD,
@@ -69,7 +70,7 @@ def _fallback_narrative(
         first = ranked[0]
         lines.append(
             f"Start here: rule {first.rule_id} (row(s) {', '.join(map(str, first.rows))}, "
-            f"severity {first.severity}) — {first.message}"
+            f"severity {first.severity}) â€” {first.message}"
         )
         for f in ranked:
             rows = ", ".join(map(str, f.rows))
@@ -102,8 +103,12 @@ def generate_report(
     if api_key:
         try:
             from google import genai
+            from google.genai import types
 
-            client = genai.Client(api_key=api_key)
+            client = genai.Client(
+                api_key=api_key,
+                http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT),
+            )
             resp = client.chats.create(model=model).send_message(prompt)
             if resp.text:
                 return resp.text

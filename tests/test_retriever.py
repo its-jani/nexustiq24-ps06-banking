@@ -1,10 +1,10 @@
-from datetime import datetime
+﻿from datetime import datetime
 
 import numpy as np
 import pytest
 
-from app.models import Transaction
-from app.retriever import RetrieverError, text_for, Retriever, build_retriever
+from core.models import Transaction
+from core.retriever import RetrieverError, text_for, Retriever, build_retriever
 
 
 def _tx(row, amount, payee):
@@ -37,7 +37,7 @@ def test_build_retriever_and_find_similar():
 
     r = build_retriever(txs, embed_fn=stub)
     assert r is not None
-    # row 1 should match rows 3, 2 (small amounts) — not row 4
+    # row 1 should match rows 3, 2 (small amounts) â€” not row 4
     similar = [t.row for t, _ in r.similar(txs[0], k=2)]
     assert 3 in similar and 2 in similar
 

@@ -1,9 +1,9 @@
-"""End-to-end guard: the shipped sample histories must behave exactly right.
+﻿"""End-to-end guard: the shipped sample histories must behave exactly right.
 sample_routine stays CLEAN (hard rule 5); sample_suspicious flags ONLY the
 planted wires with real, traceable rows (hard rules 1, 3, 4)."""
 from pathlib import Path
 
-from app.service import investigate_csv
+from core.service import investigate_csv
 
 DATA = Path(__file__).resolve().parents[1] / "data"
 
