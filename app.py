@@ -13,4 +13,5 @@ import uvicorn
 from core.main import app
 
 if __name__ == "__main__":
+    # Bind to 0.0.0.0:8000 as required by the run contract (bash run.sh).
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")

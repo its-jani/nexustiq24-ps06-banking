@@ -9,3 +9,5 @@ __pycache__/
 .pytest_cache/
 data/*.db
 tests/tmp_db/
+interview.md
+*.pid
