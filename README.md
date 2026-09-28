@@ -15,9 +15,9 @@ flags and explains — it never asserts fraud. Judgment stays with the investiga
 ## Demo video
 
 [![5-Minute Demo: Banking Transaction Risk Investigation Assistant](https://vumbnail.com/1224273028.jpg)](https://vimeo.com/1224273028)
-— it walks through the whole flow: starting the app, uploading a customer's transaction CSV, reading a
-suspicious report (`NEEDS REVIEW`) with row-cited findings, and a routine report
-(`CLEAN`) that correctly finds nothing.
+
+*it walks through the whole flow: starting the app, uploading a customer's transaction CSV, reading a
+suspicious report (`NEEDS REVIEW`) with row-cited findings, and a routine report (`CLEAN`) that correctly finds nothing.*
 
 ## Quick start
 
