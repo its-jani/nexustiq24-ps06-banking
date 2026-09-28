@@ -2,7 +2,7 @@ TRACK_ID=PS06
 
 <!-- TRACK_ID must stay the very first line: automated graders parse it. -->
 
-# PS06 — Banking Transaction Risk Investigation Assistant
+# Banking Transaction Risk Investigation Assistant
 
 <!-- The one-paragraph pitch. Every fork of this repo starts here. -->
 NexusTiQ24 submission. Upload one customer's transaction history and get an
@@ -14,7 +14,7 @@ flags and explains — it never asserts fraud. Judgment stays with the investiga
 
 ## Demo video
 
-[Watch the 5-minute demo](https://vimeo.com/1224273028?share=copy&fl=sv&fe=ci) — it walks through the
+[![5-Minute Demo: Banking Transaction Risk Investigation Assistant](https://vumbnail.com/1224273028.jpg)](https://vimeo.com/1224273028)— it walks through the
 whole flow: starting the app, uploading a customer's transaction CSV, reading a
 suspicious report (`NEEDS REVIEW`) with row-cited findings, and a routine report
 (`CLEAN`) that correctly finds nothing.
